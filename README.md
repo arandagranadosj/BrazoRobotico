@@ -131,15 +131,6 @@ A 115200 baudios, escribir el comando y Enter. Por WiFi los mismos comandos lleg
 | `F` | detiene y vacía los puntos pendientes |
 | `aire 1` / `aire 0` | la herramienta agarra o suelta |
 
-## Claude Code
-
-La carpeta `.claude/` trae la configuración para trabajar el proyecto con Claude Code:
-
-- **Hook de compilación.** Después de cada cambio al firmware compila con PlatformIO y devuelve los errores si no compila.
-- **Skill `subir-brazo`.** Compila, sube y lee el arranque por el puerto serial para confirmar que quedó funcionando.
-- **Agente `revisor-firmware`.** Revisa los cambios del firmware buscando lo que puede trabar, reiniciar o frenar el brazo.
-
-Los permisos personales van en `.claude/settings.local.json`, que no se sube.
 
 ## Autor
 
