@@ -1,0 +1,44 @@
+# ---- PlatformIO ----
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# ---- VS Code (se comparte solo extensions.json) ----
+.vscode/*
+!.vscode/extensions.json
+.history/
+
+# ---- Archivos generados al compilar ----
+# scripts/gen_interfaz.py los crea a partir de interfaz/Interfaz_Robot.html
+src/interfaz_gz.h
+# scripts/gen_geometria.py los crea a partir de geometria.json
+src/geometria.h
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---- MATLAB ----
+*.asv
+*.autosave
+*.mex*
+slprj/
+codegen/
+
+# ---- Claude Code ----
+.claude/
+_claude/
+instalar_claude.cmd
+
+# ---- Sistema operativo ----
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*~
+*.swp
+*.tmp
+*.bak

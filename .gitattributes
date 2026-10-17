@@ -1,0 +1,36 @@
+# Finales de linea LF en el repositorio y en la carpeta de trabajo, igual en Windows y Linux
+* text=auto eol=lf
+
+# Codigo
+*.cpp   text diff=cpp
+*.c     text diff=cpp
+*.h     text diff=cpp
+*.ino   text diff=cpp
+*.py    text diff=python
+*.m     text
+*.html  text diff=html
+*.json  text
+*.ini   text
+*.md    text diff=markdown
+*.sh    text eol=lf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Binarios
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.pdf   binary
+*.stl   binary
+*.step  binary
+*.FCStd binary
+*.mat   binary
+*.slx   binary
+*.zip   binary
+
+# Generado desde geometria.json, GitHub lo oculta en los diffs y en las estadisticas de lenguajes
+matlab/geometria_brazo.m linguist-generated=true
+
+# La interfaz cuenta como HTML en las estadisticas de GitHub
+interfaz/*.html linguist-detectable=true

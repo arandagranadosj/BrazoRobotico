@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Control Brazo MT8005</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1f2933;--mut:#607080;--az:#1f4e8c;--ve:#2e7d32;--ro:#c62828;--gr:#546e7a}
+*{box-sizing:border-box}
+body{font-family:system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--tx);margin:0;padding:20px}
+main{max-width:980px;margin:auto}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.c{background:var(--card);border-radius:10px;padding:12px 14px;box-shadow:0 1px 3px #0002}
+.f{display:flex;justify-content:space-between;font-size:15px;margin-bottom:4px}
+.f b{font-variant-numeric:tabular-nums}
+.r{font-size:12px;color:var(--mut)}
+input[type=range]{width:100%;height:28px}
+button{padding:11px 14px;font-size:14px;border:0;border-radius:8px;background:var(--az);color:#fff;cursor:pointer}
+button:disabled{opacity:.45;cursor:default}
+button.g{background:var(--ve)}button.o{background:var(--ro)}button.s{background:var(--gr)}
+.b{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+#st{font-size:13px;color:var(--mut)}
+#aviso{display:none;background:#fff3e0;border:1px solid #e65100;color:#8a3a00;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>Brazo MT8005</h1>
+<div class="sub">Control por el cable USB-C. Cerrar antes el monitor serial de PlatformIO.</div>
+<div id="aviso">Este navegador no permite usar el puerto USB. Abrir este archivo en Google Chrome o Microsoft Edge.</div>
+<div class="top">
+  <button id="con" onclick="conectar()">Conectar</button>
+  <span id="st">Sin conectar</span>
+</div>
+<div class="c" style="margin-bottom:12px"><div class="f"><span>Velocidad</span><b><span id="vv">-</span> °/s</b></div>
+<input type="range" id="vel" min="2" max="60" step="1" disabled></div>
+<div class="grid" id="js"></div>
+<div class="c b">
+  <button disabled onclick="env('c')">Todo al centro</button>
+  <button class="g" disabled onclick="env('r')">Ir a reposo</button>
+  <button class="s" disabled onclick="env('g')">Guardar reposo</button>
+  <button class="g" disabled onclick="env('e')">Prender</button>
+  <button class="o" disabled onclick="env('x')">Soltar</button>
+</div>
+</main>
+<script>
+const N=["J1 base","J2 hombro","J3 codo","J4 muñeca","J5 giro"];
+let puerto=null,escritor=null,armado=false,toca=[0,0,0,0,0,0],tm={},repAnt="";
+const $=id=>document.getElementById(id);
+if(!("serial" in navigator)){$("aviso").style.display="block";$("con").disabled=true}
+
+async function conectar(){
+  try{
+    puerto=await navigator.serial.requestPort();
+    await puerto.open({baudRate:115200});
+    escritor=puerto.writable.getWriter();
+    $("con").disabled=true;$("st").textContent="Conectado, esperando al brazo...";
+    leer();
+    setTimeout(()=>env("s1"),300);
+  }catch(e){$("st").textContent="No se pudo conectar: "+e.message}
+}
+async function leer(){
+  const dec=new TextDecoder();let buf="";
+  try{
+    const lector=puerto.readable.getReader();
+    while(true){
+      const {value,done}=await lector.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n"))>=0){const l=buf.slice(0,i).trim();buf=buf.slice(i+1);if(l.startsWith("E {"))estado(l.slice(2))}
+    }
+  }catch(e){}
+  $("st").textContent="Se perdió la conexión. Volver a tocar Conectar.";$("con").disabled=false;armado=false;
+}
+async function env(t){if(!escritor)return;try{await escritor.write(new TextEncoder().encode(t+"\n"))}catch(e){}}
+
+function arma(e){
+  let h="";
+  for(let i=0;i<5;i++)h+=`<div class="c"><div class="f"><span>${N[i]}</span><b><span id="t${i}">0</span>°</b></div>
+  <input type="range" id="s${i}" min="${e.lo[i]}" max="${e.hi[i]}" step="1" value="${e.m[i]}">
+  <div class="r">actual <span id="p${i}">0</span>° · reposo <span id="r${i}">0</span>°</div></div>`;
+  $("js").innerHTML=h;
+  for(let i=0;i<5;i++){const s=$("s"+i);
+    s.oninput=()=>{toca[i]=1;$("t"+i).textContent=s.value;clearTimeout(tm[i]);tm[i]=setTimeout(()=>env(`j${i+1} ${s.value}`),60)};
+    s.onchange=()=>{env(`j${i+1} ${s.value}`);setTimeout(()=>toca[i]=0,700)}}
+  const v=$("vel");v.disabled=false;
+  v.oninput=()=>{toca[5]=1;$("vv").textContent=v.value;clearTimeout(tm.v);tm.v=setTimeout(()=>env("v "+v.value),100)};
+  v.onchange=()=>setTimeout(()=>toca[5]=0,700);
+  document.querySelectorAll(".b button").forEach(b=>b.disabled=false);
+  armado=true;
+}
+function estado(txt){
+  let e;try{e=JSON.parse(txt)}catch(x){return}
+  if(!armado)arma(e);
+  for(let i=0;i<5;i++){
+    $("p"+i).textContent=e.p[i].toFixed(1);$("r"+i).textContent=e.r[i].toFixed(0);
+    if(!toca[i]){$("s"+i).value=e.m[i];$("t"+i).textContent=e.m[i].toFixed(0)}
+    $("s"+i).disabled=!e.on;
+  }
+  if(!toca[5]){$("vel").value=e.v;$("vv").textContent=e.v.toFixed(0)}
+  $("st").textContent=(e.on?"Conectado · servos con fuerza":"Conectado · servos sueltos")+" · posición guardada: "+(e.g?"sí":"guardando...");
+}
+</script>
+</body>
+</html>

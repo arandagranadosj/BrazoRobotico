@@ -1,0 +1,12 @@
+{
+  "_nota": "Medidas del brazo en un solo lugar. Al compilar, scripts/gen_geometria.py las copia a src/geometria.h (firmware), a interfaz/Interfaz_Robot.html y a matlab/geometria_brazo.m. Cambiarlas solo aqui.",
+  "eslabones_mm": {"h": 118, "a1": 29.7, "a2": 200.0, "a3": 140, "Lf": 57.5, "Lh": 55},
+  "theta_ref_grados": [0, 76.26, -76.26, 90, 0],
+  "limite_min_grados": [-85, -70, -85, -85, -85],
+  "limite_max_grados": [85, 70, 85, 85, 85],
+  "reposo_grados": [0, 70, 85, 0, 0],
+  "j1_lado": 1,
+  "j1_pasada_grados": 15,
+  "zona_mm": {"x0": 200, "x1": 300, "y0": -125, "y1": 125, "zmax": 100},
+  "caja_mm": {"x": 250, "y": 0, "l": 80, "h": 80}
+}
